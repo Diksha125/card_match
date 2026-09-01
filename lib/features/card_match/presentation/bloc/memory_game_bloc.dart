@@ -4,6 +4,9 @@ import 'package:card_match/features/card_match/domain/entities/card_entity.dart'
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:card_match/features/card_match/domain/entities/game_statistics.dart';
 import 'package:card_match/features/card_match/domain/repositories/game_repository.dart';
+import 'package:card_match/features/card_match/domain/use_case/get_statistics_use_case.dart';
+import 'package:card_match/features/card_match/domain/use_case/save_game_result_use_case.dart';
+import 'package:card_match/features/card_match/domain/use_case/start_game_use_case.dart';
 import 'package:card_match/features/card_match/game/game_logic.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_event.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_state.dart';
@@ -12,14 +15,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
   final GameLogic _gameLogic;
-  final GameRepository _gameRepository;
+
+  final GetStatisticsUseCase _getStatisticsUseCase;
+
+  final StartGameUseCase _startGameUseCase;
+
+  final SaveGameResultUseCase _saveGameResultUseCase;
 
   Timer? _timer;
 
-  MemoryGameBloc({GameLogic? gameLogic, required GameRepository gameRepository})
-    : _gameLogic = gameLogic ?? GameLogic(),
-      _gameRepository = gameRepository,
-      super(const MemoryGameState()) {
+  MemoryGameBloc({
+    GameLogic? gameLogic,
+    required GetStatisticsUseCase getStatisticsUseCase,
+    required StartGameUseCase startGameUseCase,
+    required SaveGameResultUseCase saveGameResultUseCase,
+  }) : _gameLogic = gameLogic ?? GameLogic(),
+       _getStatisticsUseCase = getStatisticsUseCase,
+       _startGameUseCase = startGameUseCase,
+       _saveGameResultUseCase = saveGameResultUseCase,
+       super(const MemoryGameState()) {
     on<StartGame>(_onStartGame);
     on<RestartGame>(_onRestartGame);
     on<CardTapped>(_onCardTapped);
@@ -35,7 +49,11 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     StartGame event,
     Emitter<MemoryGameState> emit,
   ) async {
-    await _gameRepository.incrementGamesPlayed();
+    final updatedStats = await _startGameUseCase(difficulty: event.difficulty);
+
+    final updatedAllStats = state.statistics.copyWithDifficulty(updatedStats);
+
+    emit(state.copyWith(statistics: updatedAllStats));
 
     _startNewGame(emit, difficulty: event.difficulty);
   }
@@ -105,7 +123,6 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     emit(state.copyWith(seconds: state.seconds + 1));
   }
 
-  // CARD TAP
   Future<void> _onCardTapped(
     CardTapped event,
     Emitter<MemoryGameState> emit,
@@ -128,7 +145,11 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
 
     final tappedCard = state.cards[tappedIndex];
 
-    if (tappedCard.isFlipped || tappedCard.isMatched) {
+    if (tappedCard.isFlipped) {
+      return;
+    }
+
+    if (tappedCard.isMatched) {
       return;
     }
 
@@ -146,24 +167,26 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
 
     emit(state.copyWith(cards: updatedCards));
 
-    // First card.
     if (flippedCards.isEmpty) {
       return;
     }
 
-    // Second card.
     final firstCard = flippedCards.first;
+
     final secondCard = tappedCard;
 
     final newMoves = state.moves + 1;
 
     emit(state.copyWith(isCheckingMatch: true, moves: newMoves));
 
-    // MATCH
-    if (_gameLogic.isMatch(firstCard, secondCard)) {
+    final isMatch = _gameLogic.isMatch(firstCard, secondCard);
+
+    if (isMatch) {
       await Future.delayed(const Duration(milliseconds: 250));
 
-      if (isClosed) return;
+      if (isClosed) {
+        return;
+      }
 
       final matchedCards = List<CardEntity>.from(state.cards);
 
@@ -174,6 +197,12 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
       final secondIndex = matchedCards.indexWhere(
         (card) => card.id == secondCard.id,
       );
+
+      if (firstIndex == -1 || secondIndex == -1) {
+        emit(state.copyWith(isCheckingMatch: false));
+
+        return;
+      }
 
       matchedCards[firstIndex] = matchedCards[firstIndex].copyWith(
         isMatched: true,
@@ -193,62 +222,74 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
 
       final newScore = state.score + matchScore;
 
-      final currentStats = state.statistics;
+      if (won) {
+        _stopTimer();
 
-      final updatedStatistics = currentStats.copyWith(
-        bestScore: newScore > currentStats.bestScore
-            ? newScore
-            : currentStats.bestScore,
+        final updatedStats = await _saveGameResultUseCase(
+          difficulty: state.difficulty,
+          score: newScore,
+          seconds: state.seconds,
+        );
 
-        bestTime:
-            currentStats.bestTime == 0 || state.seconds < currentStats.bestTime
-            ? state.seconds
-            : currentStats.bestTime,
+        if (isClosed) {
+          return;
+        }
 
-        gamesWon: won ? currentStats.gamesWon + 1 : currentStats.gamesWon,
-      );
+        final updatedAllStats = state.statistics.copyWithDifficulty(
+          updatedStats,
+        );
+
+        emit(
+          state.copyWith(
+            cards: matchedCards,
+            score: newScore,
+            status: GameStatus.won,
+            isCheckingMatch: false,
+            statistics: updatedAllStats,
+          ),
+        );
+
+        return;
+      }
 
       emit(
         state.copyWith(
           cards: matchedCards,
           score: newScore,
-          status: won ? GameStatus.won : GameStatus.playing,
           isCheckingMatch: false,
-          statistics: updatedStatistics,
         ),
       );
 
       return;
     }
 
-    // NOT MATCH
     await Future.delayed(const Duration(milliseconds: 800));
 
-    if (isClosed) return;
+    if (isClosed) {
+      return;
+    }
 
-    final currentCards = List<CardEntity>.from(state.cards);
+    final resetCards = List<CardEntity>.from(state.cards);
 
-    final firstIndex = currentCards.indexWhere(
-      (card) => card.id == firstCard.id,
-    );
+    final firstIndex = resetCards.indexWhere((card) => card.id == firstCard.id);
 
-    final secondIndex = currentCards.indexWhere(
+    final secondIndex = resetCards.indexWhere(
       (card) => card.id == secondCard.id,
     );
 
     if (firstIndex != -1) {
-      currentCards[firstIndex] = currentCards[firstIndex].copyWith(
+      resetCards[firstIndex] = resetCards[firstIndex].copyWith(
         isFlipped: false,
       );
     }
 
     if (secondIndex != -1) {
-      currentCards[secondIndex] = currentCards[secondIndex].copyWith(
+      resetCards[secondIndex] = resetCards[secondIndex].copyWith(
         isFlipped: false,
       );
     }
 
-    emit(state.copyWith(cards: currentCards, isCheckingMatch: false));
+    emit(state.copyWith(cards: resetCards, isCheckingMatch: false));
   }
 
   void _onPauseGame(PauseGame event, Emitter<MemoryGameState> emit) {
@@ -272,12 +313,13 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
   }
 
   void _onLoadGameStats(LoadGameStats event, Emitter<MemoryGameState> emit) {
-    final statistics = GameStatistics(
-      bestScore: _gameRepository.getBestScore(),
-      bestTime: _gameRepository.getBestTime(),
-      gamesPlayed: _gameRepository.getGamesPlayed(),
-      gamesWon: _gameRepository.getGamesWon(),
-    );
+    var statistics = GameStatistics();
+
+    for (final difficulty in GameDifficulty.values) {
+      final difficultyStats = _getStatisticsUseCase(difficulty);
+
+      statistics = statistics.copyWithDifficulty(difficultyStats);
+    }
 
     emit(state.copyWith(statistics: statistics));
   }

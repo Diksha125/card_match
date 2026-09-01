@@ -1,32 +1,27 @@
+import 'package:card_match/features/card_match/domain/entities/difficulty_statistics.dart';
+import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:equatable/equatable.dart';
 
 class GameStatistics extends Equatable {
-  final int bestScore;
-  final int bestTime;
-  final int gamesPlayed;
-  final int gamesWon;
+  final Map<GameDifficulty, DifficultyStatistics> byDifficulty;
 
-  const GameStatistics({
-    this.bestScore = 0,
-    this.bestTime = 0,
-    this.gamesPlayed = 0,
-    this.gamesWon = 0,
-  });
+  const GameStatistics({this.byDifficulty = const {}});
 
-  GameStatistics copyWith({
-    int? bestScore,
-    int? bestTime,
-    int? gamesPlayed,
-    int? gamesWon,
-  }) {
-    return GameStatistics(
-      bestScore: bestScore ?? this.bestScore,
-      bestTime: bestTime ?? this.bestTime,
-      gamesPlayed: gamesPlayed ?? this.gamesPlayed,
-      gamesWon: gamesWon ?? this.gamesWon,
+  DifficultyStatistics get(GameDifficulty difficulty) {
+    return byDifficulty[difficulty] ??
+        DifficultyStatistics(difficulty: difficulty);
+  }
+
+  GameStatistics copyWithDifficulty(DifficultyStatistics statistics) {
+    final updated = Map<GameDifficulty, DifficultyStatistics>.from(
+      byDifficulty,
     );
+
+    updated[statistics.difficulty] = statistics;
+
+    return GameStatistics(byDifficulty: updated);
   }
 
   @override
-  List<Object> get props => [bestScore, bestTime, gamesPlayed, gamesWon];
+  List<Object> get props => [byDifficulty];
 }

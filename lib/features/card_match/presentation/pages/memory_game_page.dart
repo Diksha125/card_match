@@ -1,6 +1,7 @@
-import 'package:card_match/features/card_match/data/datasources/game_local_data_source.dart';
-import 'package:card_match/features/card_match/data/repositories/game_repository_impl.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
+import 'package:card_match/features/card_match/domain/use_case/get_statistics_use_case.dart';
+import 'package:card_match/features/card_match/domain/use_case/save_game_result_use_case.dart';
+import 'package:card_match/features/card_match/domain/use_case/start_game_use_case.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_bloc.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_event.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_state.dart';
@@ -9,22 +10,29 @@ import 'package:card_match/features/card_match/presentation/widgets/memory_card.
 import 'package:card_match/features/card_match/presentation/widgets/pause_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_ce/hive.dart';
 
 class MemoryGamePage extends StatelessWidget {
   final GameDifficulty difficulty;
-  const MemoryGamePage({super.key, required this.difficulty});
+  final GetStatisticsUseCase getStatisticsUseCase;
+  final StartGameUseCase startGameUseCase;
+  final SaveGameResultUseCase saveGameResultUseCase;
+
+  const MemoryGamePage({
+    super.key,
+    required this.difficulty,
+    required this.getStatisticsUseCase,
+    required this.startGameUseCase,
+    required this.saveGameResultUseCase,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final box = Hive.box('game_box');
-    final localDataSource = GameLocalDataSource(box);
-    final repository = GameRepositoryImpl(localDataSource: localDataSource);
-
     return BlocProvider(
-      create: (_) => MemoryGameBloc(gameRepository: repository)
-        ..add(const LoadGameStats())
-        ..add(StartGame(difficulty)),
+      create: (_) => MemoryGameBloc(
+        getStatisticsUseCase: getStatisticsUseCase,
+        startGameUseCase: startGameUseCase,
+        saveGameResultUseCase: saveGameResultUseCase,
+      )..add(StartGame(difficulty)),
       child: _MemoryGameView(),
     );
   }
@@ -58,8 +66,10 @@ class _MemoryGameView extends StatelessWidget {
                   score: state.score,
                   moves: state.moves,
                   seconds: state.seconds,
-                  isNewBestScore: state.score == state.statistics.bestScore,
-                  isNewBestTime: state.seconds == state.statistics.bestTime,
+                  isNewBestScore:
+                      state.score == state.statistics.byDifficulty.values,
+                  isNewBestTime:
+                      state.seconds == state.statistics.byDifficulty.values,
                 ),
               ),
             );

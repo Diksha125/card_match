@@ -56,6 +56,7 @@ class GameResultPage extends StatelessWidget {
               const SizedBox(height: 40),
 
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   StatCard(title: 'Score', value: '$score', icon: Icons.stars),
 

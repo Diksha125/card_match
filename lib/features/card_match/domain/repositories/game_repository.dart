@@ -1,17 +1,8 @@
+import 'package:card_match/features/card_match/domain/entities/difficulty_statistics.dart';
+import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
+
 abstract class GameRepository {
-  int getBestScore();
+  DifficultyStatistics getStatistics(GameDifficulty difficulty);
 
-  int getBestTime();
-
-  int getGamesPlayed();
-
-  int getGamesWon();
-
-  Future<void> saveBestScore(int score);
-
-  Future<void> saveBestTime(int seconds);
-
-  Future<void> incrementGamesPlayed();
-
-  Future<void> incrementGamesWon();
+  Future<void> saveStatistics(DifficultyStatistics statistics);
 }

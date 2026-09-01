@@ -1,9 +1,21 @@
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
+import 'package:card_match/features/card_match/domain/use_case/get_statistics_use_case.dart';
+import 'package:card_match/features/card_match/domain/use_case/save_game_result_use_case.dart';
+import 'package:card_match/features/card_match/domain/use_case/start_game_use_case.dart';
 import 'package:card_match/features/card_match/presentation/pages/memory_game_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final GetStatisticsUseCase getStatisticsUseCase;
+  final StartGameUseCase startGameUseCase;
+  final SaveGameResultUseCase saveGameResultUseCase;
+
+  const HomePage({
+    super.key,
+    required this.getStatisticsUseCase,
+    required this.startGameUseCase,
+    required this.saveGameResultUseCase,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -58,17 +70,17 @@ class _HomePageState extends State<HomePage> {
                     ButtonSegment(
                       value: GameDifficulty.easy,
                       label: Text('Easy'),
-                      icon: Icon(Icons.mood)
+                      icon: Icon(Icons.mood),
                     ),
                     ButtonSegment(
                       value: GameDifficulty.medium,
                       label: Text('Medium'),
-                      icon: Icon(Icons.star_half)
+                      icon: Icon(Icons.star_half),
                     ),
                     ButtonSegment(
                       value: GameDifficulty.hard,
                       label: Text('Hard'),
-                      icon: Icon(Icons.whatshot)
+                      icon: Icon(Icons.whatshot),
                     ),
                   ],
                   selected: {_selectedDifficulty},
@@ -88,7 +100,10 @@ class _HomePageState extends State<HomePage> {
                     onPressed: _startGame,
                     child: const Text(
                       'PLAY',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -106,6 +121,9 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(
         builder: (_) => MemoryGamePage(
           difficulty: _selectedDifficulty,
+          getStatisticsUseCase: widget.getStatisticsUseCase,
+          startGameUseCase: widget.startGameUseCase,
+          saveGameResultUseCase: widget.saveGameResultUseCase,
         ),
       ),
     );

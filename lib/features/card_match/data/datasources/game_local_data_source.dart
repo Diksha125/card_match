@@ -1,3 +1,5 @@
+import 'package:card_match/features/card_match/domain/entities/difficulty_statistics.dart';
+import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:hive_ce/hive.dart';
 
 class GameLocalDataSource {
@@ -10,39 +12,42 @@ class GameLocalDataSource {
   static const String gamesPlayedKey = 'games_played';
   static const String gamesWonKey = 'games_won';
 
-  int getBestScore() {
-    return _box.get(bestScoreKey, defaultValue: 0) as int;
+  String _bestScoreKey(GameDifficulty difficulty) {
+    return '${difficulty.name}_best_score';
   }
 
-  int getBestTime() {
-    return _box.get(bestTimeKey, defaultValue: 0) as int;
+  String _bestTimeKey(GameDifficulty difficulty) {
+    return '${difficulty.name}_best_time';
   }
 
-  int getGamesPlayed() {
-    return _box.get(gamesPlayedKey, defaultValue: 0) as int;
+  String _gamesPlayedKey(GameDifficulty difficulty) {
+    return '${difficulty.name}_games_played';
   }
 
-  int getGamesWon() {
-    return _box.get(gamesWonKey, defaultValue: 0) as int;
+  String _gamesWonKey(GameDifficulty difficulty) {
+    return '${difficulty.name}_games_won';
   }
 
-  Future<void> saveBestScore(int score) async {
-    await _box.put(bestScoreKey, score);
+  DifficultyStatistics getStatistics(GameDifficulty difficulty) {
+    return DifficultyStatistics(
+      difficulty: difficulty,
+      bestScore: _box.get(_bestScoreKey(difficulty), defaultValue: 0) as int,
+      bestTime: _box.get(_bestTimeKey(difficulty), defaultValue: 0) as int,
+      gamesPlayed:
+          _box.get(_gamesPlayedKey(difficulty), defaultValue: 0) as int,
+      gamesWon: _box.get(_gamesWonKey(difficulty), defaultValue: 0) as int,
+    );
   }
 
-  Future<void> saveBestTime(int seconds) async {
-    await _box.put(bestTimeKey, seconds);
-  }
+  Future<void> saveStatistics(DifficultyStatistics statistics) async {
+    final difficulty = statistics.difficulty;
 
-  Future<void> incrementGamesPlayed() async {
-    final current = getGamesPlayed();
+    await _box.put(_bestScoreKey(difficulty), statistics.bestScore);
 
-    await _box.put(gamesPlayedKey, current + 1);
-  }
+    await _box.put(_bestTimeKey(difficulty), statistics.bestTime);
 
-  Future<void> incrementGamesWon() async {
-    final current = getGamesWon();
+    await _box.put(_gamesPlayedKey(difficulty), statistics.gamesPlayed);
 
-    await _box.put(gamesWonKey, current + 1);
+    await _box.put(_gamesWonKey(difficulty), statistics.gamesWon);
   }
 }
