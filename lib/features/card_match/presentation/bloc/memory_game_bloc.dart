@@ -1,9 +1,10 @@
 import 'dart:async';
 
+import 'package:card_match/features/card_match/core/services/audio_service.dart';
 import 'package:card_match/features/card_match/domain/entities/card_entity.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:card_match/features/card_match/domain/entities/game_statistics.dart';
-import 'package:card_match/features/card_match/domain/repositories/game_repository.dart';
+import 'package:card_match/features/card_match/domain/use_case/get_settings_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/get_statistics_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/save_game_result_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/start_game_use_case.dart';
@@ -22,6 +23,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
 
   final SaveGameResultUseCase _saveGameResultUseCase;
 
+  final AudioService _audioService;
+
   Timer? _timer;
 
   MemoryGameBloc({
@@ -29,7 +32,10 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     required GetStatisticsUseCase getStatisticsUseCase,
     required StartGameUseCase startGameUseCase,
     required SaveGameResultUseCase saveGameResultUseCase,
-  }) : _gameLogic = gameLogic ?? GameLogic(),
+    required GetSettingsUseCase getSettingsUseCase,
+    required AudioService audioService,
+  }) : _audioService = audioService,
+       _gameLogic = gameLogic ?? GameLogic(),
        _getStatisticsUseCase = getStatisticsUseCase,
        _startGameUseCase = startGameUseCase,
        _saveGameResultUseCase = saveGameResultUseCase,
@@ -167,6 +173,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
 
     emit(state.copyWith(cards: updatedCards));
 
+    _playSound(_audioService.playCardFlip);
+
     if (flippedCards.isEmpty) {
       return;
     }
@@ -182,6 +190,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     final isMatch = _gameLogic.isMatch(firstCard, secondCard);
 
     if (isMatch) {
+      _playSound(_audioService.playMatch);
+
       await Future.delayed(const Duration(milliseconds: 250));
 
       if (isClosed) {
@@ -225,6 +235,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
       if (won) {
         _stopTimer();
 
+        _playSound(_audioService.playVictory);
+
         final updatedStats = await _saveGameResultUseCase(
           difficulty: state.difficulty,
           score: newScore,
@@ -261,6 +273,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
       );
 
       return;
+    } else {
+      _playSound(_audioService.playMismatch);
     }
 
     await Future.delayed(const Duration(milliseconds: 800));
@@ -322,6 +336,12 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     }
 
     emit(state.copyWith(statistics: statistics));
+  }
+
+  Future<void> _playSound(Future<void> Function() sound) async {
+    _audioService.playCardFlip();
+
+    await sound();
   }
 
   @override

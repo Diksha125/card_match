@@ -1,4 +1,6 @@
+import 'package:card_match/features/card_match/core/services/audio_service.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
+import 'package:card_match/features/card_match/domain/use_case/get_settings_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/get_statistics_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/save_game_result_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/start_game_use_case.dart';
@@ -16,9 +18,13 @@ class MemoryGamePage extends StatelessWidget {
   final GetStatisticsUseCase getStatisticsUseCase;
   final StartGameUseCase startGameUseCase;
   final SaveGameResultUseCase saveGameResultUseCase;
+  final GetSettingsUseCase getSettingsUseCase;
+  final AudioService audioService;
 
   const MemoryGamePage({
     super.key,
+    required this.getSettingsUseCase,
+    required this.audioService,
     required this.difficulty,
     required this.getStatisticsUseCase,
     required this.startGameUseCase,
@@ -32,6 +38,8 @@ class MemoryGamePage extends StatelessWidget {
         getStatisticsUseCase: getStatisticsUseCase,
         startGameUseCase: startGameUseCase,
         saveGameResultUseCase: saveGameResultUseCase,
+        getSettingsUseCase: getSettingsUseCase,
+        audioService: audioService,
       )..add(StartGame(difficulty)),
       child: _MemoryGameView(),
     );

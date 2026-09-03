@@ -85,13 +85,13 @@ class GameResultPage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: 55,
-                child: ElevatedButton(
+                child: OutlinedButton(
                   onPressed: () {
                     Navigator.pop(context, ResultAction.playAgain);
                   },
                   child: const Text(
                     'PLAY AGAIN',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -105,7 +105,7 @@ class GameResultPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.pop(context, ResultAction.home);
                   },
-                  child: const Text('HOME', style: TextStyle(fontSize: 18)),
+                  child: const Text('HOME', style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],

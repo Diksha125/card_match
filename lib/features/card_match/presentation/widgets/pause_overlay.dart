@@ -32,7 +32,7 @@ class PauseOverlay extends StatelessWidget {
 
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: OutlinedButton(
                       onPressed: () {
                         context.read<MemoryGameBloc>().add(const ResumeGame());
                       },
