@@ -62,6 +62,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     emit(state.copyWith(statistics: updatedAllStats));
 
     _startNewGame(emit, difficulty: event.difficulty);
+
+    _audioService.startMusic();
   }
 
   // RESTART GAME
@@ -235,7 +237,9 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
       if (won) {
         _stopTimer();
 
-        _playSound(_audioService.playVictory);
+        await _audioService.stopMusic();
+
+        _audioService.playVictory();
 
         final updatedStats = await _saveGameResultUseCase(
           difficulty: state.difficulty,
@@ -313,6 +317,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
 
     _startTimer();
 
+    _audioService.pauseMusic();
+
     emit(state.copyWith(status: GameStatus.paused));
   }
 
@@ -320,6 +326,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     if (state.status != GameStatus.paused) {
       return;
     }
+
+    _audioService.resumeMusic();
 
     emit(state.copyWith(status: GameStatus.playing));
 

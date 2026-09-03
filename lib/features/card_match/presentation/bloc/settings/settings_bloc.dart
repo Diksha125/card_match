@@ -27,6 +27,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     _audioService.setSoundEnabled(settings.soundEnabled);
 
+    _audioService.setMusicEnabled(settings.musicEnabled);
+
     emit(state.copyWith(settings: settings));
   }
 
@@ -37,6 +39,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     await _updateSettingsUseCase(event.settings);
 
     _audioService.setSoundEnabled(event.settings.soundEnabled);
+
+    _audioService.setMusicEnabled(event.settings.musicEnabled);
 
     emit(state.copyWith(settings: event.settings));
   }
