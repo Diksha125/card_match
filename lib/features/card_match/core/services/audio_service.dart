@@ -6,6 +6,7 @@ class AudioService {
 
   bool _soundEnabled;
   bool _musicEnabled;
+  bool _musicRequested = false;
 
   AudioService({
     AudioPlayer? soundPlayer,
@@ -27,6 +28,12 @@ class AudioService {
     if (!enabled) {
       stopMusic();
     }
+  }
+
+  Future<void> enableMusic() async {
+    _musicEnabled = true;
+
+    await startMusic();
   }
 
   Future<void> playCardFlip() async {
@@ -71,6 +78,10 @@ class AudioService {
     if (!_musicEnabled) return;
 
     try {
+      if (_musicPlayer.state == PlayerState.playing) {
+        return;
+      }
+
       await _musicPlayer.setReleaseMode(ReleaseMode.loop);
 
       await _musicPlayer.setVolume(0.3);
@@ -82,6 +93,8 @@ class AudioService {
   }
 
   Future<void> stopMusic() async {
+    _musicRequested = false;
+
     try {
       await _musicPlayer.stop();
     } catch (e) {

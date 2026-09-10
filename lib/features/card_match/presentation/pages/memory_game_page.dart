@@ -8,6 +8,7 @@ import 'package:card_match/features/card_match/presentation/bloc/memory_game_blo
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_event.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_state.dart';
 import 'package:card_match/features/card_match/presentation/pages/game_result_page.dart';
+import 'package:card_match/features/card_match/presentation/pages/settings_page.dart';
 import 'package:card_match/features/card_match/presentation/widgets/memory_card.dart';
 import 'package:card_match/features/card_match/presentation/widgets/pause_overlay.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,21 @@ class _MemoryGameView extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Memory Game'), centerTitle: true),
+        appBar: AppBar(
+          title: const Text('Memory Game'),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsPage()),
+                );
+              },
+            ),
+          ],
+        ),
         body: BlocListener<MemoryGameBloc, MemoryGameState>(
           listenWhen: (previous, current) =>
               previous.status != GameStatus.won &&

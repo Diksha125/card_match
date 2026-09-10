@@ -61,16 +61,17 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
 
     emit(state.copyWith(statistics: updatedAllStats));
 
-    _startNewGame(emit, difficulty: event.difficulty);
-
-    _audioService.startMusic();
+    await _startNewGame(emit, difficulty: event.difficulty);
   }
 
   // RESTART GAME
-  void _onRestartGame(RestartGame event, Emitter<MemoryGameState> emit) {
+  Future<void> _onRestartGame(
+    RestartGame event,
+    Emitter<MemoryGameState> emit,
+  ) async {
     _stopTimer();
 
-    _startNewGame(emit, difficulty: state.difficulty);
+    await _startNewGame(emit, difficulty: state.difficulty);
   }
 
   // CHANGE DIFFICULTY
@@ -86,7 +87,7 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
   }
 
   // CREATE NEW GAME
-  void _startNewGame(
+  Future<void> _startNewGame(
     Emitter<MemoryGameState> emit, {
     required GameDifficulty difficulty,
   }) async {
@@ -103,6 +104,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
         difficulty: difficulty,
       ),
     );
+
+    await _audioService.startMusic();
 
     _startTimer();
   }
@@ -315,7 +318,7 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
       return;
     }
 
-    _startTimer();
+    _stopTimer();
 
     _audioService.pauseMusic();
 
@@ -347,8 +350,6 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
   }
 
   Future<void> _playSound(Future<void> Function() sound) async {
-    _audioService.playCardFlip();
-
     await sound();
   }
 
