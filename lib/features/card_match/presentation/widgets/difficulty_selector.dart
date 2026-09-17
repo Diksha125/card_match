@@ -22,20 +22,25 @@ class DifficultySelector extends StatelessWidget {
             context,
           ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
+
         const SizedBox(height: 12),
-        SegmentedButton<GameDifficulty>(
-          segments: GameDifficulty.values
-              .map(
-                (difficulty) => ButtonSegment<GameDifficulty>(
-                  value: difficulty,
-                  label: Text(difficulty.title),
-                ),
-              )
-              .toList(),
-          selected: {selectedDifficulty},
-          onSelectionChanged: (selection) {
-            onChanged(selection.first);
-          },
+
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<GameDifficulty>(
+            segments: GameDifficulty.values
+                .map(
+                  (difficulty) => ButtonSegment<GameDifficulty>(
+                    value: difficulty,
+                    label: Text(difficulty.title),
+                  ),
+                )
+                .toList(),
+            selected: {selectedDifficulty},
+            onSelectionChanged: (selection) {
+              onChanged(selection.first);
+            },
+          ),
         ),
       ],
     );

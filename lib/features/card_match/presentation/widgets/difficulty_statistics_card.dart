@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 class DifficultyStatisticsCard extends StatelessWidget {
   final DifficultyStatistics statistics;
 
-  const DifficultyStatisticsCard({
-    super.key,
-    required this.statistics,
-  });
+  const DifficultyStatisticsCard({super.key, required this.statistics});
 
   @override
   Widget build(BuildContext context) {
@@ -20,59 +17,36 @@ class DifficultyStatisticsCard extends StatelessWidget {
           children: [
             Text(
               statistics.difficulty.title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
 
-            _buildDetailRow(
-              'Best Score',
-              '${statistics.bestScore}',
-            ),
+            _buildDetailRow('Best Score', '${statistics.bestScore}'),
 
-            _buildDetailRow(
-              'Best Time',
-              _formatTime(statistics.bestTime),
-            ),
+            _buildDetailRow('Best Time', _formatTime(statistics.bestTime)),
 
-            _buildDetailRow(
-              'Games Played',
-              '${statistics.gamesPlayed}',
-            ),
+            _buildDetailRow('Games Played', '${statistics.gamesPlayed}'),
 
-            _buildDetailRow(
-              'Games Won',
-              '${statistics.gamesWon}',
-            ),
+            _buildDetailRow('Games Won', '${statistics.gamesWon}'),
 
-            _buildDetailRow(
-              'Win Rate',
-              '${statistics.winRate.round()}%',
-            ),
+            _buildDetailRow('Win Rate', '${statistics.winRate.round()}%'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(
-      String title,
-      String value,
-      ) {
+  Widget _buildDetailRow(String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title),
-          Text(
-            value,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Expanded(child: Text(title)),
+          const SizedBox(width: 16),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );

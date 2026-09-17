@@ -32,35 +32,49 @@ class _StatisticsPageState extends State<StatisticsPage> {
       appBar: AppBar(title: const Text('Statistics')),
       body: BlocBuilder<MemoryGameBloc, MemoryGameState>(
         builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = constraints.maxWidth;
 
-                const SizedBox(height: 12),
-
-                _buildOverview(state.statistics),
-
-                const SizedBox(height: 12),
-
-                DifficultySelector(
-                  selectedDifficulty: _selectedDifficulty,
-                  onChanged: (difficulty) {
-                    setState(() {
-                      _selectedDifficulty = difficulty;
-                    });
-                  },
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth >= 1000 ? 32 : 20,
+                  vertical: 20,
                 ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(),
 
-                const SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
-                DifficultyStatisticsCard(
-                  statistics: state.statistics.get(_selectedDifficulty),
+                        _buildOverview(state.statistics, screenWidth),
+
+                        const SizedBox(height: 12),
+
+                        DifficultySelector(
+                          selectedDifficulty: _selectedDifficulty,
+                          onChanged: (difficulty) {
+                            setState(() {
+                              _selectedDifficulty = difficulty;
+                            });
+                          },
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        DifficultyStatisticsCard(
+                          statistics: state.statistics.get(_selectedDifficulty),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),
@@ -86,7 +100,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     );
   }
 
-  Widget _buildOverview(GameStatistics statistics) {
+  Widget _buildOverview(GameStatistics statistics, double screenWidth) {
     int gamesPlayed = 0;
     int gamesWon = 0;
     int bestScore = 0;
@@ -106,13 +120,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
         ? 0
         : ((gamesWon / gamesPlayed) * 100).round();
 
+    final crossAxisCount = screenWidth >= 1000 ? 4 : 2;
+
     return GridView.count(
-      crossAxisCount: 2,
+      crossAxisCount: crossAxisCount,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.3,
+      childAspectRatio: screenWidth >= 1000 ? 1.6 : 1.25,
       children: [
         StatisticsOverviewCard(
           title: 'Games Played',
