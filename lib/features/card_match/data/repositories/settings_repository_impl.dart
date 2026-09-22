@@ -3,17 +3,18 @@ import 'package:card_match/features/card_match/domain/entities/game_settings.dar
 import 'package:card_match/features/card_match/domain/repositories/settings_repository.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
-  final SettingsLocalDataSource localDataSource;
+  final SettingsLocalDataSource _localDataSource;
 
-  SettingsRepositoryImpl({required this.localDataSource});
+  SettingsRepositoryImpl({required SettingsLocalDataSource localDataSource})
+    : _localDataSource = localDataSource;
 
   @override
   GameSettings getSettings() {
-    return localDataSource.getSettings();
+    return _localDataSource.getSettings();
   }
 
   @override
   Future<void> saveSettings(GameSettings settings) {
-    return localDataSource.saveSettings(settings);
+    return _localDataSource.saveSettings(settings);
   }
 }

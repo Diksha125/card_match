@@ -14,6 +14,8 @@ class MemoryGameState extends Equatable {
   final bool isCheckingMatch;
   final GameDifficulty difficulty;
   final GameStatistics statistics;
+  final bool isNewBestScore;
+  final bool isNewBestTime;
 
   const MemoryGameState({
     this.cards = const [],
@@ -24,7 +26,15 @@ class MemoryGameState extends Equatable {
     this.isCheckingMatch = false,
     this.difficulty = GameDifficulty.medium,
     this.statistics = const GameStatistics(),
+    this.isNewBestScore = false,
+    this.isNewBestTime = false,
   });
+
+  bool get isGameActive => status == GameStatus.playing;
+
+  bool get isPaused => status == GameStatus.paused;
+
+  bool get isWon => status == GameStatus.won;
 
   MemoryGameState copyWith({
     List<CardEntity>? cards,
@@ -35,6 +45,8 @@ class MemoryGameState extends Equatable {
     bool? isCheckingMatch,
     GameDifficulty? difficulty,
     GameStatistics? statistics,
+    bool? isNewBestScore,
+    bool? isNewBestTime,
   }) {
     return MemoryGameState(
       cards: cards ?? this.cards,
@@ -45,6 +57,8 @@ class MemoryGameState extends Equatable {
       isCheckingMatch: isCheckingMatch ?? this.isCheckingMatch,
       difficulty: difficulty ?? this.difficulty,
       statistics: statistics ?? this.statistics,
+      isNewBestScore: isNewBestScore ?? this.isNewBestScore,
+      isNewBestTime: isNewBestTime ?? this.isNewBestTime,
     );
   }
 
@@ -58,5 +72,7 @@ class MemoryGameState extends Equatable {
     isCheckingMatch,
     difficulty,
     statistics,
+    isNewBestScore,
+    isNewBestTime,
   ];
 }

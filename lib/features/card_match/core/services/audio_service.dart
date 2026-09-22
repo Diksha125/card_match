@@ -6,7 +6,6 @@ class AudioService {
 
   bool _soundEnabled;
   bool _musicEnabled;
-  bool _musicRequested = false;
 
   AudioService({
     AudioPlayer? soundPlayer,
@@ -70,7 +69,7 @@ class AudioService {
     try {
       await _soundPlayer.play(AssetSource('audio/$fileName'));
     } catch (e) {
-      print('Audio error: $e');
+      print('Sound error: $e');
     }
   }
 
@@ -93,8 +92,6 @@ class AudioService {
   }
 
   Future<void> stopMusic() async {
-    _musicRequested = false;
-
     try {
       await _musicPlayer.stop();
     } catch (e) {

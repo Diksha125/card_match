@@ -7,11 +7,6 @@ class GameLocalDataSource {
 
   GameLocalDataSource(this._box);
 
-  static const String bestScoreKey = 'best_score';
-  static const String bestTimeKey = 'best_time';
-  static const String gamesPlayedKey = 'games_played';
-  static const String gamesWonKey = 'games_won';
-
   String _bestScoreKey(GameDifficulty difficulty) {
     return '${difficulty.name}_best_score';
   }

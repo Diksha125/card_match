@@ -19,7 +19,7 @@ class GameLogic {
     '🐙',
   ];
 
-  List<CardEntity> createCard(GameDifficulty gameDifficulty) {
+  List<CardEntity> createCards(GameDifficulty gameDifficulty) {
     final requiredPairs = gameDifficulty.pairs;
     final selectedSymbols = _symbols.take(requiredPairs).toList();
 
@@ -55,5 +55,47 @@ class GameLogic {
     final score = baseScore - movePenalty - timePenalty;
 
     return max(10, score);
+  }
+
+  List<CardEntity> getUnmatchedFlippedCards(List<CardEntity> cards) {
+    return cards.where((card) => card.isFlipped && !card.isMatched).toList();
+  }
+
+  List<CardEntity> flipCard(List<CardEntity> cards, int cardId) {
+    return cards.map((card) {
+      if (card.id == cardId) {
+        return card.copyWith(isFlipped: true);
+      }
+
+      return card;
+    }).toList();
+  }
+
+  List<CardEntity> markCardsAsMatched(
+    List<CardEntity> cards,
+    int firstCardId,
+    int secondCardId,
+  ) {
+    return cards.map((card) {
+      if (card.id == firstCardId || card.id == secondCardId) {
+        return card.copyWith(isMatched: true);
+      }
+
+      return card;
+    }).toList();
+  }
+
+  List<CardEntity> hideCards(
+    List<CardEntity> cards,
+    int firstCardId,
+    int secondCardId,
+  ) {
+    return cards.map((card) {
+      if (card.id == firstCardId || card.id == secondCardId) {
+        return card.copyWith(isFlipped: false);
+      }
+
+      return card;
+    }).toList();
   }
 }

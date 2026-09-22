@@ -4,17 +4,18 @@ import 'package:card_match/features/card_match/domain/entities/game_difficulty.d
 import 'package:card_match/features/card_match/domain/repositories/game_repository.dart';
 
 class GameRepositoryImpl implements GameRepository {
-  final GameLocalDataSource localDataSource;
+  final GameLocalDataSource _localDataSource;
 
-  GameRepositoryImpl({required this.localDataSource});
+  GameRepositoryImpl({required GameLocalDataSource localDataSource})
+    : _localDataSource = localDataSource;
 
   @override
   DifficultyStatistics getStatistics(GameDifficulty difficulty) {
-    return localDataSource.getStatistics(difficulty);
+    return _localDataSource.getStatistics(difficulty);
   }
 
   @override
   Future<void> saveStatistics(DifficultyStatistics statistics) {
-    return localDataSource.saveStatistics(statistics);
+    return _localDataSource.saveStatistics(statistics);
   }
 }

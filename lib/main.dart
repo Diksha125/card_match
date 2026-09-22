@@ -1,19 +1,18 @@
+import 'package:card_match/features/card_match/core/di/dependency_injection.dart';
 import 'package:card_match/features/card_match/core/services/audio_service.dart';
-import 'package:card_match/features/card_match/data/datasources/game_local_data_source.dart';
-import 'package:card_match/features/card_match/data/datasources/settings_local_data_source.dart';
-import 'package:card_match/features/card_match/data/repositories/game_repository_impl.dart';
-import 'package:card_match/features/card_match/data/repositories/settings_repository_impl.dart';
 import 'package:card_match/features/card_match/domain/repositories/game_repository.dart';
 import 'package:card_match/features/card_match/domain/repositories/settings_repository.dart';
 import 'package:card_match/features/card_match/domain/use_case/get_settings_use_case.dart';
-import 'package:card_match/features/card_match/domain/use_case/update_settings_use_case.dart';
+import 'package:card_match/features/card_match/presentation/bloc/home/home_bloc.dart';
+import 'package:card_match/features/card_match/presentation/bloc/home/home_event.dart';
 import 'package:card_match/features/card_match/presentation/bloc/settings/settings_bloc.dart';
 import 'package:card_match/features/card_match/presentation/bloc/settings/settings_event.dart';
+import 'package:card_match/features/card_match/presentation/bloc/statistics/statistics_bloc.dart';
+import 'package:card_match/features/card_match/presentation/bloc/statistics/statistics_event.dart';
 import 'package:card_match/features/card_match/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_ce_flutter/adapters.dart';
-
 import 'features/card_match/domain/use_case/get_statistics_use_case.dart';
 import 'features/card_match/domain/use_case/save_game_result_use_case.dart';
 import 'features/card_match/domain/use_case/start_game_use_case.dart';
@@ -21,63 +20,50 @@ import 'features/card_match/domain/use_case/start_game_use_case.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final audioService = AudioService();
-
   await Hive.initFlutter();
-
   await Hive.openBox('game_box');
 
-  final box = Hive.box('game_box');
-
-  final localDataSource = GameLocalDataSource(box);
-
-  final gameRepository = GameRepositoryImpl(localDataSource: localDataSource);
-
-  final getStatisticsUseCase = GetStatisticsUseCase(repository: gameRepository);
-
-  final startGameUseCase = StartGameUseCase(repository: gameRepository);
-
-  final saveGameResultUseCase = SaveGameResultUseCase(
-    repository: gameRepository,
-  );
-
-  final settingsLocalDataSource = SettingsLocalDataSource(box);
-
-  final settingsRepository = SettingsRepositoryImpl(
-    localDataSource: settingsLocalDataSource,
-  );
-
-  final getSettingsUseCase = GetSettingsUseCase(repository: settingsRepository);
-
-  final updateSettingsUseCase = UpdateSettingsUseCase(
-    repository: settingsRepository,
-  );
+  DependencyInjection.init();
 
   runApp(
     MultiRepositoryProvider(
       providers: [
-        RepositoryProvider<GameRepository>(create: (_) => gameRepository),
+        RepositoryProvider<GameRepository>(
+          create: (_) => DependencyInjection.gameRepository,
+        ),
 
         RepositoryProvider<SettingsRepository>(
-          create: (_) => settingsRepository,
+          create: (_) => DependencyInjection.settingsRepository,
         ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<SettingsBloc>(
             create: (_) => SettingsBloc(
-              getSettingsUseCase: getSettingsUseCase,
-              updateSettingsUseCase: updateSettingsUseCase,
-              audioService: audioService,
+              getSettingsUseCase: DependencyInjection.getSettingsUseCase,
+              updateSettingsUseCase: DependencyInjection.updateSettingsUseCase,
+              audioService: DependencyInjection.audioService,
             )..add(const LoadSettings()),
+          ),
+
+          BlocProvider<HomeBloc>(
+            create: (_) => HomeBloc(
+              getStatisticsUseCase: DependencyInjection.getStatisticsUseCase,
+            )..add(const LoadHomeStats()),
+          ),
+
+          BlocProvider<StatisticsBloc>(
+            create: (_) => StatisticsBloc(
+              getStatisticsUseCase: DependencyInjection.getStatisticsUseCase,
+            )..add(const LoadStatistics()),
           ),
         ],
         child: MemoryGameApp(
-          getStatisticsUseCase: getStatisticsUseCase,
-          startGameUseCase: startGameUseCase,
-          saveGameResultUseCase: saveGameResultUseCase,
-          getSettingsUseCase: getSettingsUseCase,
-          audioService: audioService,
+          getStatisticsUseCase: DependencyInjection.getStatisticsUseCase,
+          startGameUseCase: DependencyInjection.startGameUseCase,
+          saveGameResultUseCase: DependencyInjection.saveGameResultUseCase,
+          getSettingsUseCase: DependencyInjection.getSettingsUseCase,
+          audioService: DependencyInjection.audioService,
         ),
       ),
     ),

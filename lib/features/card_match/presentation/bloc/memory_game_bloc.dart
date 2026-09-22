@@ -1,23 +1,16 @@
 import 'dart:async';
-
 import 'package:card_match/features/card_match/core/services/audio_service.dart';
 import 'package:card_match/features/card_match/domain/entities/card_entity.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
-import 'package:card_match/features/card_match/domain/entities/game_statistics.dart';
-import 'package:card_match/features/card_match/domain/use_case/get_settings_use_case.dart';
-import 'package:card_match/features/card_match/domain/use_case/get_statistics_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/save_game_result_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/start_game_use_case.dart';
 import 'package:card_match/features/card_match/game/game_logic.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_event.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_state.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
   final GameLogic _gameLogic;
-
-  final GetStatisticsUseCase _getStatisticsUseCase;
 
   final StartGameUseCase _startGameUseCase;
 
@@ -29,14 +22,11 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
 
   MemoryGameBloc({
     GameLogic? gameLogic,
-    required GetStatisticsUseCase getStatisticsUseCase,
     required StartGameUseCase startGameUseCase,
     required SaveGameResultUseCase saveGameResultUseCase,
-    required GetSettingsUseCase getSettingsUseCase,
     required AudioService audioService,
   }) : _audioService = audioService,
        _gameLogic = gameLogic ?? GameLogic(),
-       _getStatisticsUseCase = getStatisticsUseCase,
        _startGameUseCase = startGameUseCase,
        _saveGameResultUseCase = saveGameResultUseCase,
        super(const MemoryGameState()) {
@@ -44,10 +34,8 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     on<RestartGame>(_onRestartGame);
     on<CardTapped>(_onCardTapped);
     on<TimerTicked>(_onTimerTicked);
-    on<ChangeDifficulty>(_onChangeDifficulty);
     on<PauseGame>(_onPauseGame);
     on<ResumeGame>(_onResumeGame);
-    on<LoadGameStats>(_onLoadGameStats);
   }
 
   // START GAME
@@ -69,21 +57,7 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     RestartGame event,
     Emitter<MemoryGameState> emit,
   ) async {
-    _stopTimer();
-
     await _startNewGame(emit, difficulty: state.difficulty);
-  }
-
-  // CHANGE DIFFICULTY
-  void _onChangeDifficulty(
-    ChangeDifficulty event,
-    Emitter<MemoryGameState> emit,
-  ) {
-    debugPrint('Changing difficulty to: ${event.difficulty}');
-
-    _stopTimer();
-
-    _startNewGame(emit, difficulty: event.difficulty);
   }
 
   // CREATE NEW GAME
@@ -91,7 +65,7 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     Emitter<MemoryGameState> emit, {
     required GameDifficulty difficulty,
   }) async {
-    final cards = _gameLogic.createCard(difficulty);
+    final cards = _gameLogic.createCards(difficulty);
 
     emit(
       state.copyWith(
@@ -138,177 +112,158 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     CardTapped event,
     Emitter<MemoryGameState> emit,
   ) async {
-    if (state.isCheckingMatch) {
-      return;
-    }
+    // 1. Ignore taps while checking a pair.
+    if (state.isCheckingMatch) return;
 
-    if (state.status != GameStatus.playing) {
-      return;
-    }
+    // 2. Only allow taps while the game is playing.
+    if (state.status != GameStatus.playing) return;
 
+    // 3. Find the tapped card.
     final tappedIndex = state.cards.indexWhere(
       (card) => card.id == event.cardId,
     );
-
-    if (tappedIndex == -1) {
-      return;
-    }
-
+    if (tappedIndex == -1) return;
     final tappedCard = state.cards[tappedIndex];
 
-    if (tappedCard.isFlipped) {
-      return;
-    }
+    // 4. Ignore already flipped or matched cards.
+    if (tappedCard.isFlipped) return;
+    if (tappedCard.isMatched) return;
 
-    if (tappedCard.isMatched) {
-      return;
-    }
+    // 5. Get the currently flipped unmatched cards.
+    final flippedCards = _gameLogic.getUnmatchedFlippedCards(state.cards);
 
-    final flippedCards = state.cards
-        .where((card) => card.isFlipped && !card.isMatched)
-        .toList();
+    // There should never be more than two, but this protects the game from an invalid state.
+    if (flippedCards.length >= 2) return;
 
-    if (flippedCards.length >= 2) {
-      return;
-    }
-
-    final updatedCards = List<CardEntity>.from(state.cards);
-
-    updatedCards[tappedIndex] = tappedCard.copyWith(isFlipped: true);
-
+    // 6. Flip the tapped card.
+    final updatedCards = _gameLogic.flipCard(state.cards, event.cardId);
     emit(state.copyWith(cards: updatedCards));
 
-    _playSound(_audioService.playCardFlip);
+    // 7. Play flip sound.
+    await _audioService.playCardFlip();
 
-    if (flippedCards.isEmpty) {
-      return;
-    }
+    // 8. This is the first card, so wait for the second tap.
+    if (flippedCards.isEmpty) return;
 
+    // 9. We now have a pair.
     final firstCard = flippedCards.first;
-
     final secondCard = tappedCard;
-
     final newMoves = state.moves + 1;
-
     emit(state.copyWith(isCheckingMatch: true, moves: newMoves));
 
+    // 10. Check whether the cards match.
     final isMatch = _gameLogic.isMatch(firstCard, secondCard);
 
     if (isMatch) {
-      _playSound(_audioService.playMatch);
-
-      await Future.delayed(const Duration(milliseconds: 250));
-
-      if (isClosed) {
-        return;
-      }
-
-      final matchedCards = List<CardEntity>.from(state.cards);
-
-      final firstIndex = matchedCards.indexWhere(
-        (card) => card.id == firstCard.id,
+      await _handleMatch(
+        firstCard: firstCard,
+        secondCard: secondCard,
+        newMoves: newMoves,
+        emit: emit,
       );
+      return;
+    }
 
-      final secondIndex = matchedCards.indexWhere(
-        (card) => card.id == secondCard.id,
-      );
+    // 11. Cards don't match.
+    await _handleMismatch(
+      firstCard: firstCard,
+      secondCard: secondCard,
+      emit: emit,
+    );
+  }
 
-      if (firstIndex == -1 || secondIndex == -1) {
-        emit(state.copyWith(isCheckingMatch: false));
+  Future<void> _handleMatch({
+    required CardEntity firstCard,
+    required CardEntity secondCard,
+    required int newMoves,
+    required Emitter<MemoryGameState> emit,
+  }) async {
+    await _audioService.playMatch();
 
-        return;
-      }
+    await Future.delayed(const Duration(milliseconds: 250));
 
-      matchedCards[firstIndex] = matchedCards[firstIndex].copyWith(
-        isMatched: true,
-      );
+    if (isClosed) return;
 
-      matchedCards[secondIndex] = matchedCards[secondIndex].copyWith(
-        isMatched: true,
-      );
+    final matchedCards = _gameLogic.markCardsAsMatched(
+      state.cards,
+      firstCard.id,
+      secondCard.id,
+    );
 
-      final won = _gameLogic.isGameWon(matchedCards);
+    final won = _gameLogic.isGameWon(matchedCards);
 
-      final matchScore = _gameLogic.calculateMatchScore(
+    final matchScore = _gameLogic.calculateMatchScore(
+      difficulty: state.difficulty,
+      moves: newMoves,
+      seconds: state.seconds,
+    );
+
+    final newScore = state.score + matchScore;
+
+    if (won) {
+      _stopTimer();
+
+      final currentStats = state.statistics.get(state.difficulty);
+
+      final isNewBestScore =
+          currentStats.bestScore == 0 || newScore > currentStats.bestScore;
+
+      final isNewBestTime =
+          currentStats.bestTime == 0 || state.seconds < currentStats.bestTime;
+
+      await _audioService.stopMusic();
+      await _audioService.playVictory();
+
+      final updatedStats = await _saveGameResultUseCase(
         difficulty: state.difficulty,
-        moves: newMoves,
+        score: newScore,
         seconds: state.seconds,
       );
 
-      final newScore = state.score + matchScore;
+      if (isClosed) return;
 
-      if (won) {
-        _stopTimer();
-
-        await _audioService.stopMusic();
-
-        _audioService.playVictory();
-
-        final updatedStats = await _saveGameResultUseCase(
-          difficulty: state.difficulty,
-          score: newScore,
-          seconds: state.seconds,
-        );
-
-        if (isClosed) {
-          return;
-        }
-
-        final updatedAllStats = state.statistics.copyWithDifficulty(
-          updatedStats,
-        );
-
-        emit(
-          state.copyWith(
-            cards: matchedCards,
-            score: newScore,
-            status: GameStatus.won,
-            isCheckingMatch: false,
-            statistics: updatedAllStats,
-          ),
-        );
-
-        return;
-      }
+      final updatedAllStats = state.statistics.copyWithDifficulty(updatedStats);
 
       emit(
         state.copyWith(
           cards: matchedCards,
           score: newScore,
+          status: GameStatus.won,
           isCheckingMatch: false,
+          statistics: updatedAllStats,
+          isNewBestScore: isNewBestScore,
+          isNewBestTime: isNewBestTime,
         ),
       );
 
       return;
-    } else {
-      _playSound(_audioService.playMismatch);
     }
+
+    emit(
+      state.copyWith(
+        cards: matchedCards,
+        score: newScore,
+        isCheckingMatch: false,
+      ),
+    );
+  }
+
+  Future<void> _handleMismatch({
+    required CardEntity firstCard,
+    required CardEntity secondCard,
+    required Emitter<MemoryGameState> emit,
+  }) async {
+    await _audioService.playMismatch();
 
     await Future.delayed(const Duration(milliseconds: 800));
 
-    if (isClosed) {
-      return;
-    }
+    if (isClosed) return;
 
-    final resetCards = List<CardEntity>.from(state.cards);
-
-    final firstIndex = resetCards.indexWhere((card) => card.id == firstCard.id);
-
-    final secondIndex = resetCards.indexWhere(
-      (card) => card.id == secondCard.id,
+    final resetCards = _gameLogic.hideCards(
+      state.cards,
+      firstCard.id,
+      secondCard.id,
     );
-
-    if (firstIndex != -1) {
-      resetCards[firstIndex] = resetCards[firstIndex].copyWith(
-        isFlipped: false,
-      );
-    }
-
-    if (secondIndex != -1) {
-      resetCards[secondIndex] = resetCards[secondIndex].copyWith(
-        isFlipped: false,
-      );
-    }
 
     emit(state.copyWith(cards: resetCards, isCheckingMatch: false));
   }
@@ -335,22 +290,6 @@ class MemoryGameBloc extends Bloc<MemoryGameEvent, MemoryGameState> {
     emit(state.copyWith(status: GameStatus.playing));
 
     _startTimer();
-  }
-
-  void _onLoadGameStats(LoadGameStats event, Emitter<MemoryGameState> emit) {
-    var statistics = GameStatistics();
-
-    for (final difficulty in GameDifficulty.values) {
-      final difficultyStats = _getStatisticsUseCase(difficulty);
-
-      statistics = statistics.copyWithDifficulty(difficultyStats);
-    }
-
-    emit(state.copyWith(statistics: statistics));
-  }
-
-  Future<void> _playSound(Future<void> Function() sound) async {
-    await sound();
   }
 
   @override

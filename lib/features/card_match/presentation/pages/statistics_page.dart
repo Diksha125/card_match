@@ -1,8 +1,8 @@
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:card_match/features/card_match/domain/entities/game_statistics.dart';
-import 'package:card_match/features/card_match/presentation/bloc/memory_game_bloc.dart';
-import 'package:card_match/features/card_match/presentation/bloc/memory_game_event.dart';
-import 'package:card_match/features/card_match/presentation/bloc/memory_game_state.dart';
+import 'package:card_match/features/card_match/presentation/bloc/statistics/statistics_bloc.dart';
+import 'package:card_match/features/card_match/presentation/bloc/statistics/statistics_event.dart';
+import 'package:card_match/features/card_match/presentation/bloc/statistics/statistics_state.dart';
 import 'package:card_match/features/card_match/presentation/widgets/difficulty_selector.dart';
 import 'package:card_match/features/card_match/presentation/widgets/difficulty_statistics_card.dart';
 import 'package:card_match/features/card_match/presentation/widgets/statistics_overview_card.dart';
@@ -17,20 +17,20 @@ class StatisticsPage extends StatefulWidget {
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
-  GameDifficulty _selectedDifficulty = GameDifficulty.easy;
+  GameDifficulty _selectedDifficulty = GameDifficulty.medium;
 
   @override
   void initState() {
     super.initState();
 
-    context.read<MemoryGameBloc>().add(const LoadGameStats());
+    context.read<StatisticsBloc>().add(const LoadStatistics());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Statistics')),
-      body: BlocBuilder<MemoryGameBloc, MemoryGameState>(
+      body: BlocBuilder<StatisticsBloc, StatisticsState>(
         builder: (context, state) {
           return LayoutBuilder(
             builder: (context, constraints) {

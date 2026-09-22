@@ -32,23 +32,10 @@ class TimerTicked extends MemoryGameEvent {
   const TimerTicked();
 }
 
-class ChangeDifficulty extends MemoryGameEvent {
-  final GameDifficulty difficulty;
-
-  const ChangeDifficulty(this.difficulty);
-
-  @override
-  List<Object> get props => [difficulty];
-}
-
 class PauseGame extends MemoryGameEvent {
   const PauseGame();
 }
 
 class ResumeGame extends MemoryGameEvent {
   const ResumeGame();
-}
-
-class LoadGameStats extends MemoryGameEvent {
-  const LoadGameStats();
 }
