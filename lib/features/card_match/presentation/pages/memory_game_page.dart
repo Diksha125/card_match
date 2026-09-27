@@ -1,4 +1,5 @@
 import 'package:card_match/features/card_match/core/services/audio_service.dart';
+import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:card_match/features/card_match/domain/use_case/save_game_result_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/start_game_use_case.dart';
@@ -50,8 +51,18 @@ class _MemoryGameView extends StatelessWidget {
         }
       },
       child: Scaffold(
+        backgroundColor: AppColors.lightBrown,
         appBar: AppBar(
-          title: const Text('Memory Game'),
+          backgroundColor: AppColors.lightBrown,
+          foregroundColor: AppColors.black,
+          elevation: 0,
+          title: const Text(
+            'CardFlip Match',
+            style: TextStyle(
+              color: AppColors.black,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           centerTitle: true,
           actions: [
             IconButton(
@@ -113,17 +124,17 @@ class _MemoryGameView extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                _GameInfo(
+                                GameInfo(
                                   label: 'Moves',
                                   value: '${state.moves}',
                                 ),
                                 SizedBox(width: 12),
-                                _GameInfo(
+                                GameInfo(
                                   label: 'Score',
                                   value: '${state.score}',
                                 ),
                                 SizedBox(width: 12),
-                                _GameInfo(
+                                GameInfo(
                                   label: 'Time',
                                   value: _formatTime(state.seconds),
                                 ),
@@ -131,24 +142,32 @@ class _MemoryGameView extends StatelessWidget {
                             ),
 
                             IconButton(
-                              tooltip: 'Pause',
-                              onPressed: state.status == GameStatus.playing
-                                  ? () {
-                                      context.read<MemoryGameBloc>().add(
-                                        PauseGame(),
-                                      );
-                                    }
-                                  : null,
-                              icon: Icon(Icons.pause_rounded),
+                              icon: const Icon(
+                                Icons.pause_rounded,
+                                color: AppColors.black,
+                              ),
+                              onPressed: () {
+                                context.read<MemoryGameBloc>().add(
+                                  const PauseGame(),
+                                );
+                              },
                             ),
 
                             ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.black,
+                                foregroundColor: AppColors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                               onPressed: () {
                                 context.read<MemoryGameBloc>().add(
                                   const RestartGame(),
                                 );
                               },
-                              child: Text('Restart'),
+                              child: const Text('Restart'),
                             ),
                           ],
                         ),
@@ -203,10 +222,10 @@ String _formatTime(int second) {
       '${remainingSeconds.toString().padLeft(2, '0')}';
 }
 
-class _GameInfo extends StatelessWidget {
+class GameInfo extends StatelessWidget {
   final String label;
   final String value;
-  const _GameInfo({required this.label, required this.value});
+  const GameInfo({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {

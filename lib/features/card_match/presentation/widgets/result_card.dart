@@ -1,3 +1,4 @@
+import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class StatCard extends StatelessWidget {
@@ -22,11 +23,19 @@ class StatCard extends StatelessWidget {
           children: [
             Icon(icon, size: 40),
             const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.black),
+            ),
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.black,
+              ),
             ),
           ],
         ),

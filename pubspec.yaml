@@ -35,14 +35,19 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons:
 
+  #Bloc
   flutter_bloc:
 
+  #Equatable
   equatable:
 
+  #Hive database
   hive_ce_flutter:
 
+  #Hive
   hive_ce:
 
+  #AudioPlayers
   audioplayers:
 
 dev_dependencies:
@@ -80,6 +85,7 @@ flutter:
 
   assets:
     - assets/audio/
+    - assets/images/
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a

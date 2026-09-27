@@ -1,3 +1,4 @@
+import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:card_match/features/card_match/domain/entities/game_statistics.dart';
 import 'package:card_match/features/card_match/presentation/bloc/statistics/statistics_bloc.dart';
@@ -29,7 +30,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistics')),
+      backgroundColor: AppColors.lightBrown,
+      appBar: AppBar(
+        title: const Text(
+          'Statistics',
+          style: TextStyle(color: AppColors.black, fontWeight: FontWeight.w700),
+        ),
+        backgroundColor: AppColors.lightBrown,
+        foregroundColor: AppColors.black,
+        elevation: 0,
+      ),
       body: BlocBuilder<StatisticsBloc, StatisticsState>(
         builder: (context, state) {
           return LayoutBuilder(
@@ -87,14 +97,17 @@ class _StatisticsPageState extends State<StatisticsPage> {
       children: [
         Text(
           'Your Statistics',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            color: AppColors.black,
+            fontWeight: FontWeight.w800,
+          ),
         ),
         const SizedBox(height: 6),
         Text(
           'Track your memory game performance',
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.darkBrown),
         ),
       ],
     );

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class MemoryCard extends StatefulWidget {
@@ -43,11 +44,9 @@ class _MemoryCardState extends State<MemoryCard>
   void didUpdateWidget(covariant MemoryCard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final oldVisible =
-        oldWidget.isFlipped || oldWidget.isMatched;
+    final oldVisible = oldWidget.isFlipped || oldWidget.isMatched;
 
-    final newVisible =
-        widget.isFlipped || widget.isMatched;
+    final newVisible = widget.isFlipped || widget.isMatched;
 
     if (newVisible && !oldVisible) {
       _controller.forward();
@@ -87,15 +86,18 @@ class _MemoryCardState extends State<MemoryCard>
   Widget _front() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(blurRadius: 6, color: Colors.black26)],
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.black.withValues(alpha: 0.08)),
       ),
       child: Center(
         child: Transform(
           alignment: Alignment.center,
           transform: Matrix4.rotationY(math.pi),
-          child: Text(widget.value, style: const TextStyle(fontSize: 40)),
+          child: Text(
+            widget.value,
+            style: TextStyle(fontSize: 40, color: AppColors.lightBrown),
+          ),
         ),
       ),
     );
@@ -104,12 +106,15 @@ class _MemoryCardState extends State<MemoryCard>
   Widget _back() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(blurRadius: 6, color: Colors.black26)],
+        color: AppColors.darkBrown,
+        borderRadius: BorderRadius.circular(14),
       ),
       child: const Center(
-        child: Icon(Icons.question_mark, color: Colors.white, size: 36),
+        child: Icon(
+          Icons.auto_awesome_rounded,
+          color: AppColors.white,
+          size: 32,
+        ),
       ),
     );
   }

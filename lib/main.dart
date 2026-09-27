@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:card_match/features/card_match/core/di/dependency_injection.dart';
 import 'package:card_match/features/card_match/core/services/audio_service.dart';
 import 'package:card_match/features/card_match/domain/repositories/game_repository.dart';
@@ -22,6 +23,10 @@ Future<void> main() async {
 
   await Hive.initFlutter();
   await Hive.openBox('game_box');
+
+  await AudioPlayer.global.setAudioContext(
+    AudioContextConfig(focus: AudioContextConfigFocus.mixWithOthers).build(),
+  );
 
   DependencyInjection.init();
 

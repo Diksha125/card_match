@@ -1,3 +1,4 @@
+import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:flutter/material.dart';
 
@@ -28,6 +29,22 @@ class DifficultySelector extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<GameDifficulty>(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return AppColors.black;
+                }
+
+                return AppColors.white;
+              }),
+              foregroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return AppColors.white;
+                }
+
+                return AppColors.black;
+              }),
+            ),
             segments: GameDifficulty.values
                 .map(
                   (difficulty) => ButtonSegment<GameDifficulty>(

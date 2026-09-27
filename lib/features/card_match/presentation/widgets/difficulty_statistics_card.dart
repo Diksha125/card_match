@@ -1,3 +1,4 @@
+import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/domain/entities/difficulty_statistics.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,9 @@ class DifficultyStatisticsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: AppColors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -17,9 +21,10 @@ class DifficultyStatisticsCard extends StatelessWidget {
           children: [
             Text(
               statistics.difficulty.title,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.w800,
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -46,7 +51,13 @@ class DifficultyStatisticsCard extends StatelessWidget {
         children: [
           Expanded(child: Text(title)),
           const SizedBox(width: 16),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.black,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:card_match/features/card_match/core/services/audio_service.dart';
+import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:card_match/features/card_match/domain/use_case/get_settings_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/get_statistics_use_case.dart';
@@ -10,6 +11,7 @@ import 'package:card_match/features/card_match/presentation/pages/memory_game_pa
 import 'package:card_match/features/card_match/presentation/pages/settings_page.dart';
 import 'package:card_match/features/card_match/presentation/pages/statistics_page.dart';
 import 'package:card_match/features/card_match/presentation/widgets/difficulty_selection_sheet.dart';
+import 'package:card_match/features/card_match/presentation/widgets/game_card.dart';
 import 'package:card_match/features/card_match/presentation/widgets/home_action_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,6 +35,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.lightBrown,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -48,15 +51,11 @@ class HomePage extends StatelessWidget {
                   constraints: BoxConstraints(maxWidth: 900),
                   child: Column(
                     children: [
-                      _buildTopBar(context),
-
-                      const SizedBox(height: 40),
-
                       _buildHero(),
 
                       const SizedBox(height: 40),
 
-                      _buildPlayButton(context),
+                      _buildGameOptions(context, isWide),
 
                       const SizedBox(height: 24),
 
@@ -76,73 +75,61 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: IconButton(
-        tooltip: 'Settings',
-        icon: const Icon(Icons.settings_outlined),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SettingsPage()),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildHero() {
     return Column(
       children: [
-        const Text('🧠', style: TextStyle(fontSize: 80)),
-
-        const SizedBox(height: 16),
-
-        Text(
-          'Memory Game',
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 38, fontWeight: FontWeight.bold),
-        ),
-
-        const SizedBox(height: 10),
-
-        Text(
-          'Remember the cards',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey.shade700,
-          ),
+        Image.asset(
+          'assets/images/raw_play_img.png',
+          height: 150,
+          fit: BoxFit.contain,
         ),
 
         const SizedBox(height: 8),
 
         Text(
-          'Test your memory and beat your best score!',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+          'Play. Think. Repeat.',
+          style: TextStyle(
+            color: AppColors.darkBrown,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildPlayButton(BuildContext context) {
-    return SizedBox(
-      width: 280,
-      height: 58,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          _showDifficultySelection(context);
-        },
-        icon: const Icon(Icons.play_arrow_rounded),
-        label: const Text(
-          'PLAY GAME',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-      ),
+  Widget _buildGameOptions(BuildContext context, bool isWide) {
+    final cardFlip = GameCard(
+      icon: Icons.grid_view_rounded,
+      title: 'CardFlip Match',
+      description: 'Test your memory by matching pairs of cards.',
+      buttonText: 'PLAY NOW',
+      onTap: () {
+        _showDifficultySelection(context);
+      },
     );
+
+    final comingSoon = GameCard(
+      icon: Icons.extension_rounded,
+      title: 'More Games',
+      description: 'New puzzles, arcade games and challenges are coming soon.',
+      buttonText: 'COMING SOON',
+      enabled: false,
+      onTap: null,
+    );
+
+    if (isWide) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: cardFlip),
+          const SizedBox(width: 20),
+          Expanded(child: comingSoon),
+        ],
+      );
+    }
+
+    return Column(children: [cardFlip, const SizedBox(height: 20), comingSoon]);
   }
 
   Widget _buildNavigationButtons(BuildContext context, bool isWide) {

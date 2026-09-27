@@ -1,3 +1,4 @@
+import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_bloc.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_event.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +11,11 @@ class PauseOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: Container(
-        color: Colors.black54,
+        color: Colors.black.withValues(alpha: 0.65),
+        padding: const EdgeInsets.all(28),
         child: Center(
           child: Card(
+            color: AppColors.lightBrown,
             margin: const EdgeInsets.all(32),
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -25,19 +28,28 @@ class PauseOverlay extends StatelessWidget {
 
                   const Text(
                     'Game Paused',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: AppColors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
 
                   const SizedBox(height: 30),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        context.read<MemoryGameBloc>().add(const ResumeGame());
-                      },
-                      child: const Text('Resume'),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.black,
+                      foregroundColor: AppColors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
+                    onPressed: () {
+                      context.read<MemoryGameBloc>().add(const ResumeGame());
+                    },
+                    child: const Text('RESUME'),
                   ),
 
                   const SizedBox(height: 10),
@@ -48,7 +60,10 @@ class PauseOverlay extends StatelessWidget {
                       onPressed: () {
                         context.read<MemoryGameBloc>().add(const RestartGame());
                       },
-                      child: const Text('Restart'),
+                      child: const Text(
+                        'Restart',
+                        style: TextStyle(color: AppColors.black),
+                      ),
                     ),
                   ),
 
@@ -58,7 +73,10 @@ class PauseOverlay extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text('Home'),
+                    child: const Text(
+                      'Home',
+                      style: TextStyle(color: AppColors.black),
+                    ),
                   ),
                 ],
               ),
