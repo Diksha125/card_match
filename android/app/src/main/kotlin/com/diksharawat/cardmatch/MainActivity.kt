@@ -1,4 +1,4 @@
-package com.example.card_match
+package com.diksharawat.cardmatch
 
 import io.flutter.embedding.android.FlutterActivity
 
