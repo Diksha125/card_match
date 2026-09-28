@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:card_match/features/card_match/core/theme/app_colors.dart';
+import 'package:card_match/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class MemoryCard extends StatefulWidget {

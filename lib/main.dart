@@ -95,7 +95,7 @@ class MemoryGameApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Memory Game',
+      title: 'RawPlay Games',
       theme: ThemeData(useMaterial3: true),
       home: HomePage(
         getStatisticsUseCase: getStatisticsUseCase,

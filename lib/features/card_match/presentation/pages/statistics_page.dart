@@ -1,4 +1,4 @@
-import 'package:card_match/features/card_match/core/theme/app_colors.dart';
+import 'package:card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:card_match/features/card_match/domain/entities/game_statistics.dart';
 import 'package:card_match/features/card_match/presentation/bloc/statistics/statistics_bloc.dart';

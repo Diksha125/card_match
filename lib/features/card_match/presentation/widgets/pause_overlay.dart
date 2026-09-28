@@ -1,4 +1,4 @@
-import 'package:card_match/features/card_match/core/theme/app_colors.dart';
+import 'package:card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_bloc.dart';
 import 'package:card_match/features/card_match/presentation/bloc/memory_game_event.dart';
 import 'package:flutter/material.dart';

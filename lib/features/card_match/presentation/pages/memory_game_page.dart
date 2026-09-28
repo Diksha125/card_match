@@ -1,5 +1,5 @@
+import 'package:card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/core/services/audio_service.dart';
-import 'package:card_match/features/card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/domain/entities/game_difficulty.dart';
 import 'package:card_match/features/card_match/domain/use_case/save_game_result_use_case.dart';
 import 'package:card_match/features/card_match/domain/use_case/start_game_use_case.dart';
@@ -118,11 +118,11 @@ class _MemoryGameView extends StatelessWidget {
                     children: [
                       Padding(
                         padding: EdgeInsets.all(16),
-                        child: Row(
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 GameInfo(
                                   label: 'Moves',
@@ -140,34 +140,39 @@ class _MemoryGameView extends StatelessWidget {
                                 ),
                               ],
                             ),
-
-                            IconButton(
-                              icon: const Icon(
-                                Icons.pause_rounded,
-                                color: AppColors.black,
-                              ),
-                              onPressed: () {
-                                context.read<MemoryGameBloc>().add(
-                                  const PauseGame(),
-                                );
-                              },
-                            ),
-
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.black,
-                                foregroundColor: AppColors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    size: 30,
+                                    Icons.pause_rounded,
+                                    color: AppColors.black,
+                                  ),
+                                  onPressed: () {
+                                    context.read<MemoryGameBloc>().add(
+                                      const PauseGame(),
+                                    );
+                                  },
                                 ),
-                              ),
-                              onPressed: () {
-                                context.read<MemoryGameBloc>().add(
-                                  const RestartGame(),
-                                );
-                              },
-                              child: const Text('Restart'),
+
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.black,
+                                    foregroundColor: AppColors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    context.read<MemoryGameBloc>().add(
+                                      const RestartGame(),
+                                    );
+                                  },
+                                  child: const Text('Restart'),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -231,11 +236,22 @@ class GameInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(fontSize: 14)),
-        SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppColors.grey,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+
         Text(
           value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: AppColors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ],
     );

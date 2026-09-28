@@ -1,4 +1,4 @@
-import 'package:card_match/features/card_match/core/theme/app_colors.dart';
+import 'package:card_match/core/theme/app_colors.dart';
 import 'package:card_match/features/card_match/presentation/widgets/result_card.dart';
 import 'package:flutter/material.dart';
 
@@ -31,15 +31,17 @@ class GameResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.all(28),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+      backgroundColor: AppColors.lightBrown,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 520),
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

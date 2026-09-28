@@ -1,4 +1,4 @@
-import 'package:card_match/features/card_match/core/theme/app_colors.dart';
+import 'package:card_match/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class HomeActionButton extends StatelessWidget {
@@ -16,7 +16,7 @@ class HomeActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: AppColors.lightBrown.withValues(alpha: 0.2),
+      shadowColor: AppColors.darkBrown,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onPressed,
