@@ -185,7 +185,7 @@ class HomePage extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
-                color: Colors.grey.shade600,
+                color: AppColors.grey,
               ),
             ),
 
@@ -213,6 +213,8 @@ class HomePage extends StatelessWidget {
 
   void _showDifficultySelection(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: AppColors.lightBrown,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       context: context,
       builder: (_) {
         return DifficultySelectionSheet(

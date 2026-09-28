@@ -30,12 +30,12 @@ class GameCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: enabled
               ? [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 15,
-              offset: const Offset(0, 6),
-            ),
-          ]
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 15,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
               : null,
         ),
         child: Material(
@@ -58,11 +58,7 @@ class GameCard extends StatelessWidget {
                           : AppColors.lightGrey,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(
-                      icon,
-                      size: 30,
-                      color: AppColors.black,
-                    ),
+                    child: Icon(icon, size: 30, color: AppColors.black),
                   ),
 
                   const SizedBox(height: 20),
